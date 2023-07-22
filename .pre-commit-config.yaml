@@ -33,7 +33,7 @@ repos:
       rev: v0.33.0
       hooks:
           - id: markdownlint
-            args: [--fix]
+#            args: [--fix]
 
     - repo: https://github.com/gruntwork-io/pre-commit
       rev: v0.1.17
