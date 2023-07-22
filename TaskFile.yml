@@ -1,0 +1,50 @@
+---
+version: '3'
+
+dotenv: [.env]
+
+includes:
+    common:
+        taskfile: ./DevEx/taskfile/Taskfile.common.yml
+
+
+tasks:
+    default:
+        cmds:
+            - task: common:default
+
+    pre-commit-init:
+        desc: Initialize and install required hooks
+        cmds:
+            - task: common:hooks-install
+
+    pre-commit:
+        desc: Run all the pre-configured pre-commit hooks.
+        cmds:
+            - task: common:hooks
+
+    snapshot:
+        cmds:
+            - goreleaser check
+            - goreleaser release --snapshot --rm-dist --skip-publish
+
+    release:
+        cmds:
+            - goreleaser check
+            - export GITHUB_TOKEN=${GITHUB_TOKEN} && goreleaser release --rm-dist
+
+
+    stiletto-compile:
+        desc: Compile locally the stiletto binary
+        cmds:
+            - |
+              go mod tidy
+              if [ -f "stiletto" ]; then rm stiletto; fi
+              go build -o stiletto
+              chmod +x stiletto
+
+    stiletto:
+        desc: Run the compiled stiletto binary. Handy for local development, and debugging.
+        deps: [stiletto-compile]
+        cmds:
+            - ./stiletto {{.CLI_ARGS}}

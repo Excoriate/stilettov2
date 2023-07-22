@@ -1,0 +1,4 @@
+---
+format: json                          # Output format (tty | json | checkstyle | codeclimate | gitlab_codeclimate | gnu | codacy)
+ignored:
+    - DL3006                     # list of rules
