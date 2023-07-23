@@ -13,7 +13,6 @@ env:
 
 jobs:
     test:
-        name: Run Go Unit Tests
         runs-on: ubuntu-latest
         steps:
           - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3
@@ -25,4 +24,4 @@ jobs:
 
                 - name: Test
                   run: |
-                      go test ./... # Runs tests on all packages in the repository, adjust as per your test structure
+                      go test ./... -v
