@@ -4,7 +4,7 @@
 <p align="center">Portable, and <b>containerized</b> pipelines that runs everywhere! <b> works on top of Dagger ❤️️</b>.<br/><br/>
 
 ---
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/Excoriate/Stilettov2) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md) [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/Excoriate/Stilettov2) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md) [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)[![Run golangci-lint](https://github.com/Excoriate/stilettov2/actions/workflows/go-ci-lint.yaml/badge.svg)](https://github.com/Excoriate/stilettov2/actions/workflows/go-ci-lint.yaml)[![Go Unit Test](https://github.com/Excoriate/stilettov2/actions/workflows/go-ci-test.yml/badge.svg)](https://github.com/Excoriate/stilettov2/actions/workflows/go-ci-test.yml)
 
 
 ---

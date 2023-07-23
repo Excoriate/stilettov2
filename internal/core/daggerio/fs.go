@@ -146,14 +146,16 @@ func (h *Fs) PrintEntries(dir *dagger.Directory) error {
 	entries, err := dir.Entries(*h.Ctx)
 
 	if err != nil {
-		errMsg := fmt.Sprintf("Could not get entries of directory %s", dir)
+		errMsg := fmt.Sprintf("Could not get entries of directory. The 'dir."+
+			"Entries' function in Dagger returned an error: %s", err)
+
 		h.Logger.Error(errMsg, zap.Error(err))
 
 		return errors.NewConfigurationError(errMsg, err)
 	}
 
 	if len(entries) == 0 {
-		errMsg := fmt.Sprintf("No entries found in directory %s", dir)
+		errMsg := "No entries found in directory. The entries counted 0 (empty)."
 		h.Logger.Error(errMsg)
 
 		return errors.NewConfigurationError(errMsg, nil)
