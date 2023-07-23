@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3](https://github.com/Excoriate/stilettov2/compare/v0.0.2...v0.0.3) (2023-07-23)
+
+
+### Features
+
+* add option to show env vars exported to the container ([89766ed](https://github.com/Excoriate/stilettov2/commit/89766edc7fa607373aeec41864e85741adb84853))
+* add rust example, add tasks examples ([2fb5c12](https://github.com/Excoriate/stilettov2/commit/2fb5c1218c341995062f0a50e7260d29f17ee303))
+
 ## [0.0.2](https://github.com/Excoriate/stilettov2/compare/v0.0.1...v0.0.2) (2023-07-22)
 
 
