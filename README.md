@@ -34,17 +34,63 @@ brew install stiletto
 
 
 ## ▶️ How to Use Stiletto
-Just executes:
-```bash
-stiletto
+### Core concepts
+* 🤖 **Runner**: It's how the tasks and jobs are executed. Currently, the only runner supported is [Dagger](https://dagger.io).
+* ⚡️ **Task**: It's the smallest unit of work that can be executed. It's composed by a set of `commands`. If you're familiar with GitHub actions, it's equivalent to the [steps](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idsteps).
+* 📦 **Job**: It's a set of tasks that are executed in a given order. If you're familiar with GitHub actions, it's equivalent to the [jobs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs).
+* 📜 **manifest**: It's the file that defines the pipeline. It's a YAML file that contains the definition of the jobs, tasks or workflows. The specs are defined in the [manifests](./docs/manifests) folder.
+
+### How to define a manifest
+A manifest can be defined manually following the examples available in the [examples](./examples) folder
+>**NOTE**: In the future, a CLI `command` will be added in order to automatically generate all the supported manifests.
+
+Here's an example of a manifest that defines an IAC (infrastructure-as-code) task for Terragrunt (which works on top of terraform):
+```yaml
+---
+apiVersion: v1
+kind: Task
+metadata:
+    name: iac-terragrunt
+spec:
+    containerImage: alpine/terragrunt
+    mountDir: .
+    workdir: examples/terragrunt
+    commandsSpec:
+        - binary:
+          commands:
+              - ls -ltrah /mnt
+        - binary: terragrunt
+          commands:
+              - init
+              - plan
+              - apply -auto-approve
+              - destroy -auto-approve
 
 ```
+Some of the tasks options and capabilities while being defined are:
+* It can scan **environment variables** using the following options:
+  * Scan `AWS` env vars out of the box.
+  * Scan `terraform` (`TF_VARS_`) env vars out of the box.
+  * Scan all the host environment variables if available.
+  * Scan selectively environment variables, or set them explicitly.
+* It can mount **directories** and work on top of them defining **workdir** as an independent option.
+* It can define **commands** as _plain strings_, _Stiletto_ will take care of ensuring that the commands are executed in the right order.
 
-
-
+### CLI
+Stiletto provides a CLI that can be used to run the pipelines. Just run `stiletto help` to see the available commands. However, here there are some examples of how to use it:
+- Running a task from a `taskfile`:
+```bash
+stiletto job dagger --task-files=mytasks/my-task.yaml
+```
+- Running a task from a `taskfile` and overriding the `workdir`:
+```bash
+stiletto job --mountdir=/tmp --workdir=/tmp --task-files=mytasks/my-task.yaml
+```
 
 ## Roadmap 🗓️
 
+- [ ] New `manifest` command to generate manifests.
+- [ ] New types for manifest (e.g. `workflow`, `job`).
 - [ ] Enable workflows (`workflow.yml`) for more complex pipelines.
 - [ ] Cover necessary/critical parts of Stiletto with proper unit tests.
 - [ ] Add an official DockerFile that can be available in [DockerHub](https://hub.docker.com/).
