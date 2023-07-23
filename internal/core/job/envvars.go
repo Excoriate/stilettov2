@@ -6,10 +6,12 @@ import (
 )
 
 type EnvVarBehaviourOptions struct {
-	RequiredEnvVars []string
-	FailIfNotSet    bool
-	Enabled         bool
-	DotFiles        []string
+	RequiredEnvVars       []string
+	FailIfNotSet          bool
+	Enabled               bool
+	DotFiles              []string
+	IgnoreIfNotSetOrEmpty []string
+	RemoveEnvVarsIfFound  []string
 }
 
 type EnvVarsOptions struct {
@@ -21,16 +23,18 @@ type EnvVarsOptions struct {
 	EnvVarsFromDotFileCfg EnvVarBehaviourOptions
 }
 
+// DecorateWithEnvVars  decorates the job with the env vars.
 func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 	error) {
 	var envVars map[string]string
 
 	// AWS env vars
 	if opts.EnvVarsAWSCfg.Enabled {
-		awsEnvVars, err := env.GetEnvVarsByType(env.EnvVarsByTypeOpt{
-			FailIfNotSet:    opts.EnvVarsAWSCfg.FailIfNotSet,
-			RequiredEnvVars: opts.EnvVarsAWSCfg.RequiredEnvVars,
-			Prefix:          "AWS_",
+		awsEnvVars, err := env.GetEnvVarsByType(env.VarsByTypeOpt{
+			FailIfNotSet:          opts.EnvVarsAWSCfg.FailIfNotSet,
+			RequiredEnvVars:       opts.EnvVarsAWSCfg.RequiredEnvVars,
+			IgnoreIfNotSetOrEmpty: opts.EnvVarsAWSCfg.IgnoreIfNotSetOrEmpty,
+			Prefix:                "AWS_",
 		})
 
 		if err != nil {
@@ -42,10 +46,11 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 
 	// TF env vars
 	if opts.EnvVarsTerraformCfg.Enabled {
-		tfEnvVars, err := env.GetEnvVarsByType(env.EnvVarsByTypeOpt{
-			FailIfNotSet:    opts.EnvVarsTerraformCfg.FailIfNotSet,
-			RequiredEnvVars: opts.EnvVarsTerraformCfg.RequiredEnvVars,
-			Prefix:          "TF_",
+		tfEnvVars, err := env.GetEnvVarsByType(env.VarsByTypeOpt{
+			FailIfNotSet:          opts.EnvVarsTerraformCfg.FailIfNotSet,
+			RequiredEnvVars:       opts.EnvVarsTerraformCfg.RequiredEnvVars,
+			IgnoreIfNotSetOrEmpty: opts.EnvVarsTerraformCfg.IgnoreIfNotSetOrEmpty,
+			Prefix:                "TF_",
 		})
 
 		if err != nil {
@@ -57,7 +62,7 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 
 	// Host env vars
 	if opts.EnvVarsHostCfg.Enabled {
-		hostEnvVars, err := env.GetAllEnvVarsFromHost(env.EnvVarsHostOpt{
+		hostEnvVars, err := env.GetAllEnvVarsFromHost(env.VarsHostOpt{
 			FailIfNotSet:    opts.EnvVarsHostCfg.FailIfNotSet,
 			RequiredEnvVars: opts.EnvVarsHostCfg.RequiredEnvVars,
 		})
@@ -71,7 +76,7 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 
 	// Env vars custom
 	if opts.EnvVarsCustomCfg.Enabled {
-		customEnvVars, err := env.GetEnvVarsBySpecificKeys(env.EnvVarsSpecificKeysOpt{
+		customEnvVars, err := env.GetEnvVarsBySpecificKeys(env.VarsSpecificKeysOpt{
 			FailIfNotSet: opts.EnvVarsCustomCfg.FailIfNotSet,
 			EnvVarKeys:   opts.EnvVarsCustomCfg.RequiredEnvVars,
 		})

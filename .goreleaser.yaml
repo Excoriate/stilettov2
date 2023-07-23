@@ -50,14 +50,14 @@ brews:
           name: homebrew-tap
           branch: main
 
-      url_template: https://github.com/Excoriate/stiletto/releases/download/{{ .Tag }}/{{ .ArtifactName }}
+      url_template: https://github.com/Excoriate/stilettov2/releases/download/{{ .Tag }}/{{ .ArtifactName }}
 
       commit_author:
           name: Excoriate
-          email: alex@ideaup.cl
+          email: alex_torres@outlook.com
 
       folder: Formula
-      homepage: https://github.com/Excoriate/stiletto
+      homepage: https://github.com/Excoriate/stilettov2
       description: A CLI tool, framework, portable pipeline... anything you want it to be, for automating stuffs.
       license: MIT
 

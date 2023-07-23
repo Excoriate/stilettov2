@@ -6,49 +6,78 @@ import (
 	"github.com/excoriate/stiletto/internal/utils"
 )
 
-type EnvVarsByTypeOpt struct {
-	FailIfNotSet    bool
-	RequiredEnvVars []string
-	Prefix          string
+type VarsByTypeOpt struct {
+	RequiredEnvVars       []string
+	FailIfNotSet          bool
+	Prefix                string
+	IgnoreIfNotSetOrEmpty []string
+	RemoveEnvVarsIfFound  []string
 }
 
-type EnvVarsHostOpt struct {
+type VarsHostOpt struct {
 	RequiredEnvVars []string
 	FailIfNotSet    bool
 }
 
-type EnvVarsSpecificKeysOpt struct {
+type VarsSpecificKeysOpt struct {
 	FailIfNotSet bool
 	EnvVarKeys   []string
 }
 
 // GetEnvVarsByType returns the environment variables found in the system.
-func GetEnvVarsByType(opt EnvVarsByTypeOpt) (map[string]string, error) {
-	allEnvVarsFound, err := utils.FetchEnvVarsWithPrefix(opt.Prefix)
+func GetEnvVarsByType(opt VarsByTypeOpt) (map[string]string, error) {
+	allEnvVarsFound, err := utils.FetchEnvVarsWithPrefixIncludeEmptyValues(opt.Prefix)
 
 	if err != nil {
 		return nil, errors.NewArgumentError(fmt.Sprintf("Could not fetch env vars with prefix '%s'", opt.Prefix), err)
 	}
 
-	if utils.MapIsNulOrEmpty(allEnvVarsFound) && opt.FailIfNotSet {
-		return nil, errors.NewConfigurationError("No Env Vars found", nil)
+	if utils.MapIsNulOrEmpty(allEnvVarsFound) {
+		return nil, errors.NewConfigurationError(fmt.Sprintf("No Env Vars found with prefix '%s'."+
+			" The resulting map is empty"+
+			"", opt.Prefix), nil)
 	}
 
 	if len(opt.RequiredEnvVars) == 0 {
+		if len(opt.RemoveEnvVarsIfFound) == 0 {
+			return allEnvVarsFound, nil
+		} else {
+			for _, envVar := range opt.RemoveEnvVarsIfFound {
+				if _, ok := allEnvVarsFound[envVar]; ok {
+					delete(allEnvVarsFound, envVar)
+				}
+			}
+		}
+
 		return allEnvVarsFound, nil
 	}
 
 	for _, envVar := range opt.RequiredEnvVars {
 		if _, ok := allEnvVarsFound[envVar]; !ok {
 			return nil, errors.NewConfigurationError(fmt.Sprintf(
-				"The environment variable %s is not set, but was declared mandatory", envVar), nil)
+				"The option 'RequiredEnvVars' was set. The environment variable %s is not set, but was declared mandatory", envVar), nil)
+		}
+
+		if allEnvVarsFound[envVar] == "" && opt.FailIfNotSet {
+			return nil, errors.NewConfigurationError(fmt.Sprintf(
+				"The option 'RequiredEnvVars' was set. The environment variable %s is not set, but was declared mandatory", envVar), nil)
+		}
+	}
+
+	if len(opt.RemoveEnvVarsIfFound) == 0 {
+		return allEnvVarsFound, nil
+	}
+
+	for _, envVar := range opt.RemoveEnvVarsIfFound {
+		if _, ok := allEnvVarsFound[envVar]; ok {
+			delete(allEnvVarsFound, envVar)
 		}
 	}
 
 	return allEnvVarsFound, nil
 }
 
-func GetAllEnvVarsFromHost(opt EnvVarsHostOpt) (map[string]string, error) {
+func GetAllEnvVarsFromHost(opt VarsHostOpt) (map[string]string, error) {
 	allEnvVarsFromHost, err := utils.FetchAllEnvVarsFromHost()
 	if err != nil {
 		return nil, errors.NewArgumentError("Could not fetch env vars from host", err)
@@ -72,7 +101,7 @@ func GetAllEnvVarsFromHost(opt EnvVarsHostOpt) (map[string]string, error) {
 	return allEnvVarsFromHost, nil
 }
 
-func GetEnvVarsBySpecificKeys(opt EnvVarsSpecificKeysOpt) (map[string]string, error) {
+func GetEnvVarsBySpecificKeys(opt VarsSpecificKeysOpt) (map[string]string, error) {
 	if len(opt.EnvVarKeys) == 0 {
 		return nil, errors.NewArgumentError("No Env Var Keys provided", nil)
 	}

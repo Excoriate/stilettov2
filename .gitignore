@@ -48,3 +48,7 @@ yarn.lock
 .terraform
 terraform.tfstate
 terraform.tfstate.backup
+
+# Rust/Cargo
+Cargo.lock
+target/

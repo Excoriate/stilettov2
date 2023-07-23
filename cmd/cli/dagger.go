@@ -30,6 +30,9 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 		cliLog := tui.NewTUIMessage()
 		cliUX := tui.NewTitle()
 
+		workDir := viper.GetString("workDir")
+		mountDir := viper.GetString("mountDir")
+
 		// Task files/manifests to mount.
 		taskFilesCfg := viper.GetStringSlice("taskFiles")
 
@@ -79,15 +82,31 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 			taskManifest, err := manifestBuilder.WithGeneratedTaskManifest().
 				WithStrictDeepValidation().
 				Build()
+
 			if err != nil {
 				cliLog.ShowError("", err.Error(), nil)
 				os.Exit(1)
 			}
 
 			convertedTask, err := taskManifest.Convert()
+
 			if err != nil {
 				cliLog.ShowError("", err.Error(), nil)
 				os.Exit(1)
+			}
+
+			if workDir != "" && convertedTask.Task.WorkDir != "" {
+				cliLog.ShowWarning("", fmt.Sprintf("The workDir '%s' was set in the CLI, "+
+					"but also set in the manifest file '%s'. The CLI value will be used.", workDir, taskFile))
+
+				convertedTask.Task.WorkDir = workDir
+			}
+
+			if mountDir != "" && convertedTask.Task.MountDir != "" {
+				cliLog.ShowWarning("", fmt.Sprintf("The mountDir '%s' was set in the CLI, "+
+					"but also set in the manifest file '%s'. The CLI value will be used.", mountDir, taskFile))
+
+				convertedTask.Task.MountDir = mountDir
 			}
 
 			tasksConvertedFromManifest = append(tasksConvertedFromManifest, *convertedTask)

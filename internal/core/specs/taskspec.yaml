@@ -7,21 +7,38 @@ spec:
     containerImage: terragrunt
     workdir: /my/workdir
     mountDir: /my/rootdir
+    baseDir: /my/basedir
     envVarsSpec:
         envVars:
             VAR1: value1
             VAR2: value2
-        options:
+        dotFiles:
+            - .env.something
+            - .env.another
+        envVarsScanned:
             scanAWSEnvVars:
-                - aws_var1
-                - aws_var2
-            scanTerraformEnvVars: true
+                enabled: true
+                failIfNotSet: false
+                RemoveEnvVarsIfFound:
+                    - var1
+                ignoreIfNotSetOrEmpty:
+                    - var3
+                    - var4
+                requiredEnvVars:
+                    - VAR1
+                    - VAR2
+            scanTerraformEnvVars:
+                enabled: true
+                failIfNotSet: false
+                ignoreIfNotSetOrEmpty:
+                    - var5
+                    - var6
+                requiredEnvVars:
+                    - VAR1
+                    - VAR2
             scanCustomEnvVars:
                 - custom_var1
                 - custom_var2
-            dotFiles:
-                - .env.something
-                - .env.another
     commandsSpec:
         - binary: command1
           commands:

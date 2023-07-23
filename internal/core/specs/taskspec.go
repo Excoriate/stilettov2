@@ -21,13 +21,23 @@ type TaskSpec struct {
 }
 
 type EnvVarsSpec struct {
-	EnvVars map[string]string `yaml:"envVars"`
-	Options struct {
-		ScanAWSEnvVars       []string `yaml:"scanAWSEnvVars"`
-		ScanTerraformEnvVars bool     `yaml:"scanTerraformEnvVars"`
-		ScanCustomEnvVars    []string `yaml:"scanCustomEnvVars"`
-		DotFiles             []string `yaml:"dotFiles"`
-	}
+	EnvVars        map[string]string      `yaml:"envVars"`
+	EnvVarsScanned EnvVarsScannedOptsSpec `yaml:"envVarsScanned"`
+	DotFiles       []string               `yaml:"dotFiles"`
+}
+
+type EnvVarsScannedOptsSpec struct {
+	ScanAWSEnvVars       EnvVarsScanOptsSpec `yaml:"scanAWSEnvVars"`
+	ScanTerraformEnvVars EnvVarsScanOptsSpec `yaml:"scanTerraformEnvVars"`
+	ScanCustomEnvVars    []string            `yaml:"scanCustomEnvVars"`
+}
+
+type EnvVarsScanOptsSpec struct {
+	Enabled               bool     `yaml:"enabled"`
+	FailIfNotSet          bool     `yaml:"failIfNotSet"`
+	IgnoreIfNotSetOrEmpty []string `yaml:"ignoreIfNotSetOrEmpty"`
+	RequiredEnvVars       []string `yaml:"requiredEnvVars"`
+	RemoveEnvVarsIfFound  []string `yaml:"removeEnvVarsIfFound"`
 }
 
 type CommandsSpec struct {

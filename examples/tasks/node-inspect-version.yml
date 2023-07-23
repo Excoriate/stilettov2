@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Task
+metadata:
+    name: node-js-inspect-version
+spec:
+    containerImage: node:alpine
+    workdir: workflows
+    mountDir: .github
+    commandsSpec:
+        - binary:
+          commands:
+              - ls -la
+              - pwd
+        - binary: node
+          commands:
+              - --version

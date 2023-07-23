@@ -46,6 +46,26 @@ func FetchEnvVarsWithPrefix(prefix string) (EnvVars, error) {
 	return result, nil
 }
 
+func FetchEnvVarsWithPrefixIncludeEmptyValues(prefix string) (EnvVars, error) {
+	result := make(EnvVars)
+
+	for _, env := range os.Environ() {
+		pair := strings.SplitN(env, "=", 2)
+		key := pair[0]
+
+		if strings.HasPrefix(key, prefix) {
+			value := pair[1]
+			result[key] = RemoveDoubleQuotes(value)
+		}
+	}
+
+	if len(result) == 0 {
+		return nil, errors.New(fmt.Sprintf("No environment variables with the prefix %s found", prefix))
+	}
+
+	return result, nil
+}
+
 func MergeEnvVars(envVars ...EnvVars) EnvVars {
 	result := make(EnvVars)
 

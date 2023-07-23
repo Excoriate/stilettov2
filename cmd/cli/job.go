@@ -79,14 +79,6 @@ func addPersistentFlagsToJobCMD() {
 	_ = viper.BindPFlag("dotFiles", JobCMD.PersistentFlags().Lookup("dotfiles"))
 	_ = viper.BindPFlag("workDir", JobCMD.PersistentFlags().Lookup("workdir"))
 	_ = viper.BindPFlag("mountDir", JobCMD.PersistentFlags().Lookup("mountdir"))
-
-	if err := JobCMD.MarkPersistentFlagRequired("mountdir"); err != nil {
-		panic(err)
-	}
-
-	if err := JobCMD.MarkPersistentFlagRequired("workdir"); err != nil {
-		panic(err)
-	}
 }
 
 func init() {

@@ -61,35 +61,39 @@ func (s *TaskManifestSpec) Convert() (*ConvertedTask, error) {
 
 	var envVarsOptions job.EnvVarsOptions
 
-	if s.Spec.EnvVarsSpec.Options.ScanTerraformEnvVars {
+	if s.Spec.EnvVarsSpec.EnvVarsScanned.ScanTerraformEnvVars.Enabled {
 		envVarsOptions.EnvVarsTerraformCfg = job.EnvVarBehaviourOptions{
-			Enabled:         true,
-			FailIfNotSet:    true,
-			RequiredEnvVars: []string{},
+			Enabled:               true,
+			FailIfNotSet:          s.Spec.EnvVarsSpec.EnvVarsScanned.ScanTerraformEnvVars.FailIfNotSet,
+			RequiredEnvVars:       s.Spec.EnvVarsSpec.EnvVarsScanned.ScanTerraformEnvVars.RequiredEnvVars,
+			IgnoreIfNotSetOrEmpty: s.Spec.EnvVarsSpec.EnvVarsScanned.ScanTerraformEnvVars.IgnoreIfNotSetOrEmpty,
+			RemoveEnvVarsIfFound:  s.Spec.EnvVarsSpec.EnvVarsScanned.ScanTerraformEnvVars.RemoveEnvVarsIfFound,
 		}
 	}
 
-	if len(s.Spec.EnvVarsSpec.Options.ScanAWSEnvVars) != 0 {
+	if s.Spec.EnvVarsSpec.EnvVarsScanned.ScanAWSEnvVars.Enabled {
 		envVarsOptions.EnvVarsAWSCfg = job.EnvVarBehaviourOptions{
-			Enabled:         true,
-			FailIfNotSet:    true,
-			RequiredEnvVars: s.Spec.EnvVarsSpec.Options.ScanAWSEnvVars,
+			Enabled:               true,
+			FailIfNotSet:          s.Spec.EnvVarsSpec.EnvVarsScanned.ScanAWSEnvVars.FailIfNotSet,
+			RequiredEnvVars:       s.Spec.EnvVarsSpec.EnvVarsScanned.ScanAWSEnvVars.RequiredEnvVars,
+			IgnoreIfNotSetOrEmpty: s.Spec.EnvVarsSpec.EnvVarsScanned.ScanAWSEnvVars.IgnoreIfNotSetOrEmpty,
+			RemoveEnvVarsIfFound:  s.Spec.EnvVarsSpec.EnvVarsScanned.ScanAWSEnvVars.RemoveEnvVarsIfFound,
 		}
 	}
 
-	if len(s.Spec.EnvVarsSpec.Options.ScanCustomEnvVars) != 0 {
+	if len(s.Spec.EnvVarsSpec.EnvVarsScanned.ScanCustomEnvVars) != 0 {
 		envVarsOptions.EnvVarsCustomCfg = job.EnvVarBehaviourOptions{
 			Enabled:         true,
 			FailIfNotSet:    true,
-			RequiredEnvVars: s.Spec.EnvVarsSpec.Options.ScanCustomEnvVars,
+			RequiredEnvVars: s.Spec.EnvVarsSpec.EnvVarsScanned.ScanCustomEnvVars,
 		}
 	}
 
-	if len(s.Spec.EnvVarsSpec.Options.DotFiles) != 0 {
+	if len(s.Spec.EnvVarsSpec.DotFiles) != 0 {
 		envVarsOptions.EnvVarsFromDotFileCfg = job.EnvVarBehaviourOptions{
 			Enabled:      true,
 			FailIfNotSet: true,
-			DotFiles:     s.Spec.EnvVarsSpec.Options.DotFiles,
+			DotFiles:     s.Spec.EnvVarsSpec.DotFiles,
 		}
 	}
 
