@@ -11,16 +11,12 @@ import (
 type Title struct {
 }
 
-type JobTUIDetails struct {
-	Product     string
-	Workdir     string
-	Domain      string
-	Service     string
-	TypeOrLayer string
-	Environment string
-	Region      string
-	// Shows the task to run. E.g.: 'terraform apply'
+type ExecutionDetails struct {
+	Workdir  string
+	BaseDir  string
+	MountDir string
 	TaskName string
+	Id       string
 }
 
 func (t *Title) ShowTitleAndDescription(title, description string) {
@@ -46,26 +42,15 @@ func (t *Title) ShowTitle(title string) {
 	pterm.DefaultCenter.Println(s)
 }
 
-func (t *Title) ShowInitDetails(opt JobTUIDetails) {
+func (t *Title) ShowExecutionDetails(opt ExecutionDetails) {
 	pterm.Println()
 	pterm.DefaultBasicText.Println(pterm.LightWhite("--------------------------------------------------"))
-	pterm.DefaultBasicText.Println("Product" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Product))))
-
-	pterm.DefaultBasicText.Println("Domain ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Domain))))
-	pterm.DefaultBasicText.Println("Service ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Service))))
-	pterm.DefaultBasicText.Println("Type/Layer ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.TypeOrLayer))))
-	pterm.DefaultBasicText.Println("Environment ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Environment))))
-	pterm.DefaultBasicText.Println("Region ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Region))))
-	pterm.DefaultBasicText.Println("Workdir ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.Workdir))))
-	pterm.DefaultBasicText.Println("Task ->" + pterm.LightMagenta(fmt.Sprintf(" %s ",
-		utils.NormaliseStringUpper(opt.TaskName))))
+	pterm.DefaultBasicText.Println("Id" + pterm.LightMagenta(fmt.Sprintf(" %s ",
+		utils.NormaliseStringUpper(opt.Id))))
+	pterm.DefaultBasicText.Println("Task" + pterm.LightMagenta(fmt.Sprintf(" %s ", opt.TaskName)))
+	pterm.DefaultBasicText.Println("Workdir" + pterm.LightMagenta(fmt.Sprintf(" %s ", opt.Workdir)))
+	pterm.DefaultBasicText.Println("BaseDir" + pterm.LightMagenta(fmt.Sprintf(" %s ", opt.BaseDir)))
+	pterm.DefaultBasicText.Println("MountDir" + pterm.LightMagenta(fmt.Sprintf(" %s ", opt.MountDir)))
 
 	pterm.DefaultBasicText.Println(pterm.LightWhite("--------------------------------------------------"))
 	pterm.Println()

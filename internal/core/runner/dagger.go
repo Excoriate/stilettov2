@@ -23,6 +23,7 @@ type DaggerRunner struct {
 	Ctx          *context.Context
 	BaseDir      string
 	BaseDirAbs   string
+	Options      DaggerRunnerOptions
 }
 
 type DaggerRunnerBuilder struct {
@@ -35,6 +36,11 @@ type DaggerRunnerBuilder struct {
 	ctx          *context.Context
 	baseDir      string
 	baseDirAbs   string
+	Options      DaggerRunnerOptions
+}
+
+type DaggerRunnerOptions struct {
+	ShowEnvVars bool
 }
 
 func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
@@ -72,10 +78,12 @@ func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
 
 		// Get the current host directory.
 		baseDirAbs := job.BaseDirAbs
+		r.Logger.Info(fmt.Sprintf("Job %s will be executed from base directory %s", job.Name, baseDirAbs))
 
 		for _, task := range job.Tasks {
 			// Directory to copy to the container, aka 'mount directory'.
 			mountDirPathAbs := filepath.Join(baseDirAbs, task.MountDir)
+			r.Logger.Info(fmt.Sprintf("Task %s with id %s will be executed from mount directory %s", task.Name, task.Id, mountDirPathAbs))
 
 			if err := daggerFs.ValidateEntries(mountDirPathAbs); err != nil {
 				return errors.NewTaskExecutionError(fmt.Sprintf("Failed to run task %s with id %s", task.Name, task.Id), err)
@@ -91,6 +99,7 @@ func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
 
 			// WorkDir validation within dagger.
 			workDirPathAbs := filepath.Join(mountDirPathAbs, task.Workdir)
+			r.Logger.Info(fmt.Sprintf("Task %s with id %s will be executed from work directory %s", task.Name, task.Id, workDirPathAbs))
 
 			if err := daggerFs.ValidateEntries(workDirPathAbs); err != nil {
 				return errors.NewTaskExecutionError(fmt.Sprintf("Failed to run task %s with id %s", task.Name, task.Id), err)
@@ -101,6 +110,19 @@ func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
 
 			if !utils.MapIsNulOrEmpty(task.EnvVars) {
 				container, _ = daggerio.SetEnvVarsInContainer(container, task.EnvVars)
+			}
+
+			if r.Options.ShowEnvVars {
+				envVars, err := daggerio.GetEnvVarsSetInContainer(container, r.Ctx)
+				if err != nil {
+					return errors.NewTaskExecutionError(fmt.Sprintf("Failed to run task %s with id %s", task.Name, task.Id), err)
+				}
+
+				for _, envVar := range envVars {
+					name, _ := envVar.Name(*r.Ctx)
+					value, _ := envVar.Value(*r.Ctx)
+					r.Logger.Info(fmt.Sprintf("EnvVar: %s=%s", name, value))
+				}
 			}
 
 			workDirPath := filepath.Join(daggerFs.GetMntDir(), task.Workdir)
@@ -120,6 +142,16 @@ func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
 	r.Logger.Info("All jobs were executed successfully")
 	return nil
 
+}
+
+func (b *DaggerRunnerBuilder) WithOptions(opt DaggerRunnerOptions) *DaggerRunnerBuilder {
+	if opt.ShowEnvVars {
+		b.logger.Info("The environment variables will be shown")
+	}
+
+	b.Options = opt
+
+	return b
 }
 
 func (b *DaggerRunnerBuilder) WithDaggerClient(c *dagger.Client) *DaggerRunnerBuilder {
@@ -166,6 +198,7 @@ func (b *DaggerRunnerBuilder) Build() (*DaggerRunner, error) {
 		Ctx:          b.ctx,
 		BaseDir:      b.baseDir,
 		BaseDirAbs:   b.baseDirAbs,
+		Options:      b.Options,
 	}, nil
 }
 

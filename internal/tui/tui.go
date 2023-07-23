@@ -11,5 +11,5 @@ type UXTitleGenerator interface {
 	ShowTitleAndDescription(title, description string)
 	ShowTitle(title string)
 	ShowSubTitle(mainTitle, subtitle string)
-	ShowInitDetails(opt JobTUIDetails)
+	ShowExecutionDetails(opt ExecutionDetails)
 }

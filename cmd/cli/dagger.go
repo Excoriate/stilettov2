@@ -32,6 +32,7 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 
 		workDir := viper.GetString("workDir")
 		mountDir := viper.GetString("mountDir")
+		showEnvVars := viper.GetBool("showEnvVars")
 
 		// Task files/manifests to mount.
 		taskFilesCfg := viper.GetStringSlice("taskFiles")
@@ -141,7 +142,9 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 
 		// Run the jobs.
 		runnerBuilder := runner.NewRunnerDagger(scheduleJobs)
-		runner, err := runnerBuilder.WithDaggerClient(nil).Build()
+		runner, err := runnerBuilder.WithDaggerClient(nil).WithOptions(runner.DaggerRunnerOptions{
+			ShowEnvVars: showEnvVars,
+		}).Build()
 		if err != nil {
 			cliLog.ShowError("RUNNER-ERROR", err.Error(), nil)
 			os.Exit(1)

@@ -20,6 +20,9 @@ var (
 
 	// mountDir is the directory that'll be mounted in the container.
 	mountDir string
+
+	// showEnvVars is a flag that indicates if the environment variables should be shown.
+	showEnvVars bool
 )
 
 var JobCMD = &cobra.Command{
@@ -75,10 +78,16 @@ func addPersistentFlagsToJobCMD() {
 		"MountDir directory that represent that directory that'll be mounted or copied to the"+
 			" Dagger container")
 
+	JobCMD.PersistentFlags().BoolVarP(&showEnvVars,
+		"show-env-vars",
+		"", false,
+		"Show the environment variables that'll be used in the job.")
+
 	_ = viper.BindPFlag("jobName", JobCMD.PersistentFlags().Lookup("job-name"))
 	_ = viper.BindPFlag("dotFiles", JobCMD.PersistentFlags().Lookup("dotfiles"))
 	_ = viper.BindPFlag("workDir", JobCMD.PersistentFlags().Lookup("workdir"))
 	_ = viper.BindPFlag("mountDir", JobCMD.PersistentFlags().Lookup("mountdir"))
+	_ = viper.BindPFlag("showEnvVars", JobCMD.PersistentFlags().Lookup("show-env-vars"))
 }
 
 func init() {
