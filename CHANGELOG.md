@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.4](https://github.com/Excoriate/stilettov2/compare/v0.0.3...v0.0.4) (2023-07-23)
+
+
+### Other
+
+* fix test, add badges ([5892dde](https://github.com/Excoriate/stilettov2/commit/5892dde33412bb79ffa78f1d9ff9bdd595a6a548))
+
 ## [0.0.3](https://github.com/Excoriate/stilettov2/compare/v0.0.2...v0.0.3) (2023-07-23)
 
 
