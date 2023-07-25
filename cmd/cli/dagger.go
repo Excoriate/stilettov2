@@ -30,6 +30,7 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 		cliLog := tui.NewTUIMessage()
 		cliUX := tui.NewTitle()
 
+		// Specific flags
 		workDir := viper.GetString("workDir")
 		mountDir := viper.GetString("mountDir")
 		showEnvVars := viper.GetBool("showEnvVars")
@@ -59,16 +60,9 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 				"workflows and whatever can be containerized in your own laptop 👨🏻‍💻("+
 				"powered by Dagger.IO)")
 
-		// New manifest builder
-		if len(taskFilesCfg) == 0 {
-			cliLog.ShowError("", "No task files (specs, or manifests) were provided",
-				nil)
-			os.Exit(1)
-		}
-
 		var tasksConvertedFromManifest []specs.ConvertedTask
 		for _, taskFile := range taskFilesCfg {
-			manifestBuilder, err := specs.NewManifestBuilder(specs.ManifestNewOpts{
+			manifestBuilder, err := specs.NewTaskSpecBuilder(specs.NewOpts{
 				ManifestType: entities.ManifestTypeTask,
 				ManifestFile: taskFile,
 				Client:       i,

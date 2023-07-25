@@ -19,7 +19,7 @@ spec:
             scanAWSEnvVars:
                 enabled: true
                 failIfNotSet: false
-                RemoveEnvVarsIfFound:
+                removeEnvVarsIfFound:
                     - var1
                 ignoreIfNotSetOrEmpty:
                     - var3
