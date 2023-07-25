@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/Excoriate/stilettov2/compare/v0.0.4...v0.0.5) (2023-07-25)
+
+
+### Bug Fixes
+
+* add support for removal of not required env vars ([#6](https://github.com/Excoriate/stilettov2/issues/6)) ([47da3bb](https://github.com/Excoriate/stilettov2/commit/47da3bb75c2afbe93acb815a667cc888c3c803eb))
+
 ## [0.0.4](https://github.com/Excoriate/stilettov2/compare/v0.0.3...v0.0.4) (2023-07-23)
 
 
