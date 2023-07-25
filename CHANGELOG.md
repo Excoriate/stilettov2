@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/Excoriate/stilettov2/compare/v0.0.5...v0.0.6) (2023-07-25)
+
+
+### Bug Fixes
+
+* fix envvars explicitness support in stiletto ([22c2d18](https://github.com/Excoriate/stilettov2/commit/22c2d18be52702d892826e30b9575110f18e418d))
+
 ## [0.0.5](https://github.com/Excoriate/stilettov2/compare/v0.0.4...v0.0.5) (2023-07-25)
 
 
