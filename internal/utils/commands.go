@@ -6,7 +6,7 @@ import (
 	"github.com/google/shlex"
 )
 
-// GetCommandArgs parses the jobcmd and returns the arguments.
+// GetCommandArgs parses the job command and returns the arguments.
 func GetCommandArgs(cmd string) ([]string, error) {
 	args, err := shlex.Split(cmd)
 

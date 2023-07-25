@@ -34,6 +34,7 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 			FailIfNotSet:          opts.EnvVarsAWSCfg.FailIfNotSet,
 			RequiredEnvVars:       opts.EnvVarsAWSCfg.RequiredEnvVars,
 			IgnoreIfNotSetOrEmpty: opts.EnvVarsAWSCfg.IgnoreIfNotSetOrEmpty,
+			RemoveEnvVarsIfFound:  opts.EnvVarsAWSCfg.RemoveEnvVarsIfFound,
 			Prefix:                "AWS_",
 		})
 
@@ -50,6 +51,7 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 			FailIfNotSet:          opts.EnvVarsTerraformCfg.FailIfNotSet,
 			RequiredEnvVars:       opts.EnvVarsTerraformCfg.RequiredEnvVars,
 			IgnoreIfNotSetOrEmpty: opts.EnvVarsTerraformCfg.IgnoreIfNotSetOrEmpty,
+			RemoveEnvVarsIfFound:  opts.EnvVarsTerraformCfg.RemoveEnvVarsIfFound,
 			Prefix:                "TF_",
 		})
 

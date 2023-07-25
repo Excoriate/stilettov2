@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 )
 
-type ManifestBuilder struct {
+type Builder struct {
 	manifestFile     string
 	manifestType     string
 	taskManifestSpec *TaskManifestSpec
@@ -24,7 +24,7 @@ type ManifestBuilder struct {
 	baseDirAbs string
 }
 
-type ManifestNewOpts struct {
+type NewOpts struct {
 	ManifestType string
 	Client       *entities.Client
 	ManifestFile string
@@ -111,7 +111,7 @@ func (s *TaskManifestSpec) Convert() (*ConvertedTask, error) {
 }
 
 // WithGeneratedTaskManifest WithTaskManifests WithJobManifests adds job manifests to the builder.
-func (b *ManifestBuilder) WithGeneratedTaskManifest() *ManifestBuilder {
+func (b *Builder) WithGeneratedTaskManifest() *Builder {
 	if b.manifestType != entities.ManifestTypeTask {
 		errMsg := fmt.Sprintf("invalid manifest type: %s", b.manifestType)
 		b.logger.Error(errMsg)
@@ -152,7 +152,7 @@ func (b *ManifestBuilder) WithGeneratedTaskManifest() *ManifestBuilder {
 }
 
 // WithStrictDeepValidation adds strict deep validation to the builder.
-func (b *ManifestBuilder) WithStrictDeepValidation() *ManifestBuilder {
+func (b *Builder) WithStrictDeepValidation() *Builder {
 	specContent := b.taskManifestSpec
 	if specContent == nil {
 		errMsg := "task manifest is required prior to this API execution. " +
@@ -248,7 +248,7 @@ func (b *ManifestBuilder) WithStrictDeepValidation() *ManifestBuilder {
 }
 
 // Build builds the manifest.
-func (b *ManifestBuilder) Build() (*TaskManifestSpec, error) {
+func (b *Builder) Build() (*TaskManifestSpec, error) {
 	if b.err != nil {
 		return &TaskManifestSpec{}, errors.NewConfigurationError(fmt.Sprintf(
 			"cannot build manifest of type '%s'", b.manifestType), b.err)
@@ -271,21 +271,14 @@ func (b *ManifestBuilder) Build() (*TaskManifestSpec, error) {
 	}, nil
 }
 
-// NewManifestBuilder creates a new instance of ManifestBuilder.
-func NewManifestBuilder(opts ManifestNewOpts) (*ManifestBuilder, error) {
+// NewTaskSpecBuilder creates a new instance of ManifestBuilder.
+func NewTaskSpecBuilder(opts NewOpts) (*Builder, error) {
 	if opts.Client == nil {
 		errMsg := "A valid client instance is required."
 		return nil, errors.NewArgumentError(errMsg, nil)
 	}
 
 	logger := opts.Client.Logger
-
-	if opts.ManifestType != entities.ManifestTypeTask && opts.ManifestType != entities.
-		ManifestTypeJob && opts.ManifestType != entities.ManifestTypeWorkflow {
-		errMsg := fmt.Sprintf("invalid manifest type: %s", opts.ManifestType)
-		logger.Error(errMsg)
-		return nil, errors.NewArgumentError(errMsg, nil)
-	}
 
 	if opts.ManifestFile == "" {
 		errMsg := "The manifest file is required. " +
@@ -294,17 +287,29 @@ func NewManifestBuilder(opts ManifestNewOpts) (*ManifestBuilder, error) {
 		return nil, errors.NewArgumentError(errMsg, nil)
 	}
 
+	if opts.ManifestType != entities.ManifestTypeTask && opts.ManifestType != entities.
+		ManifestTypeJob && opts.ManifestType != entities.ManifestTypeWorkflow {
+		errMsg := fmt.Sprintf("Cannot create a manifest builder client. Invalid manifest type: %s",
+			opts.ManifestType)
+		logger.Error(errMsg)
+		return nil, errors.NewArgumentError(errMsg, nil)
+	}
+
 	// Joining the manifest filepath with the current directory.
 	manifestFileFull := filepath.Join(opts.Client.CfgDir.BaseDir, opts.ManifestFile)
+	logger.Info(fmt.Sprintf("The manifest full path is resolved as: %s", manifestFileFull))
+
 	opts.ManifestFile = manifestFileFull
 
 	if err := yamlparser.YamlFileIsValid(opts.ManifestFile); err != nil {
-		errMsg := fmt.Sprintf("invalid manifest file: %s", opts.ManifestFile)
+		errMsg := fmt.Sprintf("Cannot create a manifest builder client. Invalid manifest file: %s",
+			opts.ManifestFile)
+
 		logger.Error(errMsg)
 		return nil, errors.NewArgumentError(errMsg, err)
 	}
 
-	return &ManifestBuilder{
+	return &Builder{
 		manifestType:     opts.ManifestType,
 		manifestFile:     opts.ManifestFile,
 		taskManifestSpec: nil,
