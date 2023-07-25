@@ -19,8 +19,8 @@ type EnvVarsOptions struct {
 	EnvVarsHostCfg        EnvVarBehaviourOptions
 	EnvVarsAWSCfg         EnvVarBehaviourOptions
 	EnvVarsTerraformCfg   EnvVarBehaviourOptions
-	EnvVarsCustomCfg      EnvVarBehaviourOptions
 	EnvVarsFromDotFileCfg EnvVarBehaviourOptions
+	EnvVarsExplicit       map[string]string
 }
 
 // DecorateWithEnvVars  decorates the job with the env vars.
@@ -77,17 +77,8 @@ func DecorateWithEnvVars(opts EnvVarsOptions) (map[string]string,
 	}
 
 	// Env vars custom
-	if opts.EnvVarsCustomCfg.Enabled {
-		customEnvVars, err := env.GetEnvVarsBySpecificKeys(env.VarsSpecificKeysOpt{
-			FailIfNotSet: opts.EnvVarsCustomCfg.FailIfNotSet,
-			EnvVarKeys:   opts.EnvVarsCustomCfg.RequiredEnvVars,
-		})
-
-		if err != nil {
-			return nil, err
-		}
-
-		envVars = utils.MergeEnvVars(envVars, customEnvVars)
+	if !utils.MapIsNulOrEmpty(opts.EnvVarsExplicit) {
+		envVars = utils.MergeEnvVars(envVars, opts.EnvVarsExplicit)
 	}
 
 	// DotFiles

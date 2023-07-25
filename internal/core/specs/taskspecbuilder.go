@@ -6,6 +6,7 @@ import (
 	"github.com/excoriate/stiletto/internal/core/job"
 	"github.com/excoriate/stiletto/internal/core/validation"
 	"github.com/excoriate/stiletto/internal/errors"
+	"github.com/excoriate/stiletto/internal/utils"
 	"github.com/excoriate/stiletto/internal/yamlparser"
 	"go.uber.org/zap"
 	"path/filepath"
@@ -81,12 +82,8 @@ func (s *TaskManifestSpec) Convert() (*ConvertedTask, error) {
 		}
 	}
 
-	if len(s.Spec.EnvVarsSpec.EnvVarsScanned.ScanCustomEnvVars) != 0 {
-		envVarsOptions.EnvVarsCustomCfg = job.EnvVarBehaviourOptions{
-			Enabled:         true,
-			FailIfNotSet:    true,
-			RequiredEnvVars: s.Spec.EnvVarsSpec.EnvVarsScanned.ScanCustomEnvVars,
-		}
+	if !utils.MapIsNulOrEmpty(s.Spec.EnvVarsSpec.EnvVars) {
+		envVarsOptions.EnvVarsExplicit = s.Spec.EnvVarsSpec.EnvVars
 	}
 
 	if len(s.Spec.EnvVarsSpec.DotFiles) != 0 {
