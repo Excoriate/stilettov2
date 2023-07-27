@@ -103,3 +103,13 @@ func FindGitRepoDir(pathname string, levels int) (string, error) {
 	}
 	return "", fmt.Errorf("path %s is not a git repository", pathname)
 }
+
+// GetFileContent returns the content of a file as a string.
+func GetFileContent(filePath string) (string, error) {
+	contentBytes, err := os.ReadFile(filePath)
+	if err != nil {
+		return "", fmt.Errorf("error reading file %s: %v", filePath, err)
+	}
+
+	return string(contentBytes), nil
+}

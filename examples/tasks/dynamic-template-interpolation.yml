@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Task
+metadata:
+    name: dynamic-template-interpolation-example-v1
+spec:
+    containerImage: alpine/terragrunt
+    mountDir: .
+    workdir: examples/terragrunt
+    envVarsSpec:
+        envVars:
+            PASSED_ENV_VAR_DYNAMICALLY: '{{ readEnv `MY_HOST_ENV_VAR` }}'
+    commandsSpec:
+        - binary:
+          commands:
+              - ls -ltrah /mnt
+        - binary:
+          commands:
+              - printenv
+              - echo my dynamically interpolated env var is {{ readEnv `MY_HOST_ENV_VAR` }}

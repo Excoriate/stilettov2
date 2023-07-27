@@ -74,7 +74,11 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 			}
 
 			// Task manifest, ready to be transformed into a valid Dagger job (task).
-			taskManifest, err := manifestBuilder.WithGeneratedTaskManifest().
+			taskManifest, err := manifestBuilder.
+				WithCompiledManifestStructure().
+				WithExtractedManifestContent().
+				WithCompiledManifestFunctions().
+				WithConstructedSpec().
 				WithStrictDeepValidation().
 				Build()
 

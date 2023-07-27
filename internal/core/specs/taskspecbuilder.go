@@ -1,6 +1,7 @@
 package specs
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/excoriate/stiletto/internal/core/entities"
 	"github.com/excoriate/stiletto/internal/core/job"
@@ -10,12 +11,14 @@ import (
 	"github.com/excoriate/stiletto/internal/yamlparser"
 	"go.uber.org/zap"
 	"path/filepath"
+	"strings"
 )
 
 type Builder struct {
-	manifestFile     string
-	manifestType     string
-	taskManifestSpec *TaskManifestSpec
+	manifestFile              string
+	manifestType              string
+	manifestFileBufferContent bytes.Buffer
+	taskManifestSpec          *TaskManifestSpec
 
 	// Cross-functional configuration as part of the builder pattern.
 	logger     *zap.Logger
@@ -107,10 +110,113 @@ func (s *TaskManifestSpec) Convert() (*ConvertedTask, error) {
 	}, nil
 }
 
-// WithGeneratedTaskManifest WithTaskManifests WithJobManifests adds job manifests to the builder.
-func (b *Builder) WithGeneratedTaskManifest() *Builder {
+// WithExtractedManifestContent adds the manifest content to the builder.
+func (b *Builder) WithExtractedManifestContent() *Builder {
+	if b.manifestFile == "" {
+		errMsg := "Cannot extract manifest content. The manifest file is required, but it was passed as empty"
+		b.logger.Error(errMsg)
+		b.err = errors.NewArgumentError(errMsg, nil)
+
+		return b
+	}
+
+	manifestContent, err := utils.GetFileContent(b.manifestFile)
+	if err != nil {
+		errMsg := fmt.Sprintf("Cannot extract manifest content. Cannot read the manifest file: %s", err)
+		b.logger.Error(errMsg)
+		b.err = errors.NewArgumentError(errMsg, err)
+
+		return b
+	}
+
+	b.manifestFileBufferContent = bytes.Buffer{}
+	b.manifestFileBufferContent.WriteString(manifestContent)
+
+	return b
+}
+
+// WithCompiledManifestFunctions adds compiled template functions to the builder.
+// It allows to detect special 'Stiletto' keywords, such as .env to load
+// environment variables.
+func (b *Builder) WithCompiledManifestFunctions() *Builder {
+	if b.manifestFileBufferContent.String() == "" {
+		errMsg := "Cannot compile manifest template functions. " +
+			"The manifest file content is required in" +
+			" order to compile its template functions, but it was passed as empty"
+
+		b.logger.Error(errMsg)
+		b.err = errors.NewArgumentError(errMsg, nil)
+		return b
+	}
+
+	funcMapsCfg := entities.TmplCfgFuncMaps
+
+	for key, cfg := range funcMapsCfg {
+		var tempManifestContent string
+		tempManifestContent = b.manifestFileBufferContent.String()
+
+		if strings.Contains(tempManifestContent, key) {
+			compilationOpts := utils.TemplateCompilationOpts{
+				TemplateContent: tempManifestContent,
+				Data:            &TaskManifestSpec{},
+				TemplateName:    "taskManifest",
+				FuncMap:         cfg,
+			}
+
+			compiledTpl, err := utils.CompileTemplate(compilationOpts)
+
+			if err != nil {
+				errMsg := fmt.Sprintf("Cannot compile manifest template functions. Cannot compile template: %s", err)
+				b.logger.Error(errMsg)
+				b.err = errors.NewArgumentError(errMsg, err)
+
+				return b
+			}
+
+			compiledManifestFileContent := compiledTpl.String()
+			manifestCompiledTemp := bytes.Buffer{}
+			manifestCompiledTemp.WriteString(compiledManifestFileContent)
+
+			b.manifestFileBufferContent = manifestCompiledTemp
+		}
+	}
+
+	b.logger.Info("manifest template functions compiled successfully")
+
+	return b
+}
+
+// WithConstructedSpec adds the manifest spec to the builder.
+func (b *Builder) WithConstructedSpec() *Builder {
+	if b.manifestFileBufferContent.String() == "" {
+		errMsg := "Cannot construct manifest spec. " +
+			"The manifest file content is required in" +
+			" order to construct its spec, but it was passed as empty"
+
+		b.logger.Error(errMsg)
+		b.err = errors.NewArgumentError(errMsg, nil)
+		return b
+	}
+
+	taskManifestSpec := &TaskManifestSpec{}
+	if err := yamlparser.YamlToStructWithContent(b.manifestFileBufferContent.String(), taskManifestSpec); err != nil {
+		errMsg := fmt.Sprintf("Cannot construct manifest spec. Cannot parse yaml file %s", b.manifestFile)
+
+		b.logger.Error(errMsg)
+		b.err = errors.NewArgumentError(errMsg, err)
+		return b
+	}
+
+	b.taskManifestSpec = taskManifestSpec
+	b.logger.Info("task manifest added to the builder")
+
+	return b
+}
+
+// WithCompiledManifestStructure WithTaskManifests WithJobManifests adds job manifests to the builder.
+func (b *Builder) WithCompiledManifestStructure() *Builder {
 	if b.manifestType != entities.ManifestTypeTask {
-		errMsg := fmt.Sprintf("invalid manifest type: %s", b.manifestType)
+		errMsg := fmt.Sprintf("Cannot compile manifest structure. Invalid manifest type: %s", b.manifestType)
 		b.logger.Error(errMsg)
 		b.err = errors.NewArgumentError(errMsg, nil)
 
@@ -118,8 +224,7 @@ func (b *Builder) WithGeneratedTaskManifest() *Builder {
 	}
 
 	if err := yamlparser.YamlStructureIsValid(b.manifestFile, &TaskManifestSpec{}); err != nil {
-		errMsg := fmt.Sprintf("Cannot add task manifests, "+
-			"invalid yaml structure for file %s", b.manifestFile)
+		errMsg := fmt.Sprintf("Cannot compile manifest structure. Invalid manifest structure: %s", err)
 
 		b.logger.Error(errMsg)
 		b.err = errors.NewArgumentError(errMsg, err)
@@ -128,21 +233,15 @@ func (b *Builder) WithGeneratedTaskManifest() *Builder {
 
 	taskManifestSpec := &TaskManifestSpec{}
 
-	if err := yamlparser.YamlToStructFromFile(b.manifestFile, taskManifestSpec); err != nil {
-		errMsg := fmt.Sprintf("Cannot add task manifests, "+
-			"cannot parse yaml file %s", b.manifestFile)
+	if err := yamlparser.YamlToStructFromFile(b.manifestFile,
+		taskManifestSpec); err != nil {
+		errMsg := fmt.Sprintf("Cannot compile manifest structure. Cannot parse yaml file %s", b.manifestFile)
 
 		b.logger.Error(errMsg)
 		b.err = errors.NewArgumentError(errMsg, err)
 		return b
 	}
 
-	if taskManifestSpec.Spec.BaseDir == "" {
-		b.logger.Info("he 'baseDir' in the task manifest isn't set, so it'll be resolved to the current directory")
-		taskManifestSpec.Spec.BaseDir = b.baseDirAbs
-	}
-
-	b.taskManifestSpec = taskManifestSpec
 	b.logger.Info("task manifest added to the builder")
 
 	return b
@@ -153,7 +252,7 @@ func (b *Builder) WithStrictDeepValidation() *Builder {
 	specContent := b.taskManifestSpec
 	if specContent == nil {
 		errMsg := "task manifest is required prior to this API execution. " +
-			"Ensure that you've called the WithGeneratedTaskManifest method"
+			"Ensure that you've called the WithCompiledManifestStructure method"
 
 		b.logger.Error(errMsg)
 		b.err = errors.NewManifestError(errMsg, nil)
@@ -193,6 +292,13 @@ func (b *Builder) WithStrictDeepValidation() *Builder {
 		b.logger.Error(errMsg)
 		b.err = errors.NewManifestError(errMsg, nil)
 		return b
+	}
+
+	if specContent.Spec.BaseDir == "" {
+		b.logger.Info("The 'baseDir' in the task manifest isn't set, " +
+			"so it'll be resolved to the current directory")
+
+		specContent.Spec.BaseDir = b.baseDirAbs
 	}
 
 	if specContent.Spec.Workdir == "" {
