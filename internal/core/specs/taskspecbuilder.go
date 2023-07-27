@@ -128,7 +128,7 @@ func (b *Builder) WithGeneratedTaskManifest() *Builder {
 
 	taskManifestSpec := &TaskManifestSpec{}
 
-	if err := yamlparser.YamlToStruct(b.manifestFile, taskManifestSpec); err != nil {
+	if err := yamlparser.YamlToStructFromFile(b.manifestFile, taskManifestSpec); err != nil {
 		errMsg := fmt.Sprintf("Cannot add task manifests, "+
 			"cannot parse yaml file %s", b.manifestFile)
 

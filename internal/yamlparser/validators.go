@@ -49,21 +49,3 @@ func YamlStructureIsValid(yamlFile string, schema interface{}) error {
 
 	return nil
 }
-
-// YamlToStruct converts a yaml file into a struct.
-func YamlToStruct(yamlFile string, schema interface{}) error {
-	file, err := os.Open(yamlFile)
-
-	if err != nil {
-		return fmt.Errorf("could not open the yaml file: %s", err.Error())
-	}
-
-	defer file.Close()
-
-	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(schema); err != nil {
-		return fmt.Errorf("the yaml file %s did not have a valid structure: %s", yamlFile, err.Error())
-	}
-
-	return nil
-}
