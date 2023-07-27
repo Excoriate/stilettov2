@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.7](https://github.com/Excoriate/stilettov2/compare/v0.0.6...v0.0.7) (2023-07-27)
+
+
+### Features
+
+* Add dynamic env vars interpolation in manifest.yml file ([#11](https://github.com/Excoriate/stilettov2/issues/11)) ([6e040b1](https://github.com/Excoriate/stilettov2/commit/6e040b1db017c4e446cc8359d0a662c28073103c))
+
 ## [0.0.6](https://github.com/Excoriate/stilettov2/compare/v0.0.5...v0.0.6) (2023-07-25)
 
 
