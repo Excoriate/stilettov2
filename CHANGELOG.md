@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.8](https://github.com/Excoriate/stilettov2/compare/v0.0.7...v0.0.8) (2023-08-01)
+
+
+### Bug Fixes
+
+* avoid collision for reserved fucntions keywords ([#14](https://github.com/Excoriate/stilettov2/issues/14)) ([3cafd1e](https://github.com/Excoriate/stilettov2/commit/3cafd1eff861d744f5b91a097278d21be3323950))
+
 ## [0.0.7](https://github.com/Excoriate/stilettov2/compare/v0.0.6...v0.0.7) (2023-07-27)
 
 
