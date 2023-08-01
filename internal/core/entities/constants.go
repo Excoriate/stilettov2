@@ -20,18 +20,18 @@ var TmplCfgFuncMaps = map[string]template.FuncMap{
 	"readEnv": {
 		"readEnv": os.Getenv,
 	},
-	"pwd": {
+	"readPWD": {
 		"getPwd": os.Getwd,
 	},
-	"home": {
+	"readHome": {
 		"getHome": os.UserHomeDir,
 	},
-	"replace": {
+	"doReplace": {
 		"replace": func(s, old, new string) string {
 			return strings.ReplaceAll(s, old, new)
 		},
 	},
-	"trimspace": {
+	"doTrimspace": {
 		"trimspace": func(s string) string {
 			return strings.TrimSpace(s)
 		},

@@ -45,7 +45,8 @@ jobs:
           # merge commit, and it's easy to commit this by mistake. Enable this option
           # to also validate the commit message for one commit PRs.
                   validateSingleCommit: true
-          # Configure additional validation for the subject based on a regex.
+                # yamllint disable-line rule:comments-indentation
+                # Configure additional validation for the subject based on a regex.
           # This ensures the subject doesn't start with an uppercase character.
                   subjectPattern: ^(?![A-Z]).+$
           # If `subjectPattern` is configured, you can use this property to override

@@ -13,6 +13,7 @@ spec:
     commandsSpec:
         - binary:
           commands:
+              - pwd
               - ls -ltrah /mnt
         - binary:
           commands:
