@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.9](https://github.com/Excoriate/stilettov2/compare/v0.0.8...v0.0.9) (2023-08-03)
+
+
+### Bug Fixes
+
+* add exiting on error on runners errors, add Sync method instead of ExitCode ([ee742fa](https://github.com/Excoriate/stilettov2/commit/ee742fa730ac4e82539ceedaaef34f853ad17bbe))
+
 ## [0.0.8](https://github.com/Excoriate/stilettov2/compare/v0.0.7...v0.0.8) (2023-08-01)
 
 
