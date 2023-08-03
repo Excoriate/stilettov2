@@ -1,0 +1,35 @@
+---
+apiVersion: v1
+kind: Task
+metadata:
+    name: aws-force-error
+spec:
+    containerImage: rust:alpine
+    mountDir: examples
+    workdir: aws-ecr-rust
+    commandsSpec:
+        - binary:
+          commands:
+              - ls -la
+              - pwd
+              - printenv
+        - binary:
+          commands:
+              - cargo build src/main.rs --release
+              - ls -la target/release
+              - pwd
+              - cargo run --release
+        # Force error
+              - exit 1
+    envVarsSpec:
+        envVarsScanned:
+            scanAWSEnvVars:
+                enabled: true
+                failIfNotSet: false
+                ignoreIfNotSetOrEmpty:
+                    - AWS_SESSION_TOKEN
+                    - AWS_SECURITY_TOKEN
+                    - AWS_PROFILE_ID
+                requiredEnvVars:
+                    - AWS_ACCESS_KEY_ID
+                    - AWS_SECRET_ACCESS_KEY

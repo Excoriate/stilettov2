@@ -143,6 +143,7 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 		runner, err := runnerBuilder.WithDaggerClient(nil).WithOptions(runner.DaggerRunnerOptions{
 			ShowEnvVars: showEnvVars,
 		}).Build()
+
 		if err != nil {
 			cliLog.ShowError("RUNNER-ERROR", err.Error(), nil)
 			os.Exit(1)
@@ -151,6 +152,7 @@ stiletto job dagger --task-files=../../stiletto/tasks/terragrunt-plan.yml`,
 		err = runner.RunInDagger(jobs)
 		if err != nil {
 			cliLog.ShowError("RUNNER-ERROR", err.Error(), nil)
+			os.Exit(1)
 		}
 	},
 }

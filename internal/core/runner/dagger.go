@@ -130,7 +130,7 @@ func (r *DaggerRunner) RunInDagger(jobs []entities.Job) error {
 
 			// Run specific set of commands per task.
 			for _, cmd := range task.CommandsCfg {
-				_, err := container.WithExec(cmd.Commands).ExitCode(*job.Client.Ctx)
+				_, err := container.WithExec(cmd.Commands).Sync(*job.Client.Ctx)
 				if err != nil {
 					r.Logger.Error(fmt.Sprintf("Task %s with id %s failed to run", task.Name, task.Id))
 					return errors.NewTaskExecutionError(fmt.Sprintf("Task %s with id %s failed to run", task.Name, task.Id), err)
